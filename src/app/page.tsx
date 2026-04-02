@@ -40,7 +40,7 @@ export default async function HomePage() {
 
         {/* Product info */}
         <div className="flex flex-col justify-center">
-          <p className="text-xs tracking-[0.3em] uppercase text-white/40 mb-2">Nappy Nina</p>
+          <p className="text-xs tracking-[0.3em] uppercase text-white/40 mb-2">Nappy Nina &amp; Swarvy</p>
           <h1 className="text-2xl sm:text-3xl uppercase tracking-wide text-white mb-2">
             {vinyl.name}
           </h1>
