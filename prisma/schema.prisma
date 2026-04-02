@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  PUBLIC
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELED
+}
+
+enum EPKType {
+  ALBUM
+  TOUR
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  role        Role     @default(PUBLIC)
+  privyUserId String?  @unique
+  firstName   String?
+  lastName    String?
+  orders      Order[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Product {
+  id              String         @id @default(cuid())
+  name            String
+  slug            String         @unique
+  price           Float
+  images          String[]
+  description     String         @default("")
+  category        String         @default("")
+  stripeProductId String?
+  stripePriceId   String?
+  quantity        Int            @default(0)
+  isActive        Boolean        @default(true)
+  isArchived      Boolean        @default(false)
+  isFeatured      Boolean        @default(false)
+  stock           ProductStock[]
+  orderItems      OrderItem[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model ProductStock {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  size      String
+  quantity  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, size])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  total           Float
+  status          OrderStatus @default(PENDING)
+  shippingAmount  Float       @default(0)
+  taxAmount       Float       @default(0)
+  shippingAddress Json?
+  stripeSessionId String?
+  trackingNumber  String?
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  name      String   @default("")
+  quantity  Int
+  price     Float
+  size      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EPK {
+  id             String          @id @default(cuid())
+  title          String
+  slug           String          @unique
+  type           EPKType         @default(ALBUM)
+  bio            String          @default("")
+  heroVideoSrc   String?
+  heroVideoPoster String?
+  password       String?
+  isPublished    Boolean         @default(false)
+  liveVideos     Json?
+  pressLinks     EPKPressLink[]
+  photos         EPKPhoto[]
+  tourGraphics   EPKTourGraphic[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model EPKPressLink {
+  id          String   @id @default(cuid())
+  epkId       String
+  epk         EPK      @relation(fields: [epkId], references: [id])
+  outlet      String
+  url         String
+  description String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model EPKPhoto {
+  id        String   @id @default(cuid())
+  epkId     String
+  epk       EPK      @relation(fields: [epkId], references: [id])
+  src       String
+  alt       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EPKTourGraphic {
+  id        String   @id @default(cuid())
+  epkId     String
+  epk       EPK      @relation(fields: [epkId], references: [id])
+  src       String
+  title     String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WebhookEvent {
+  id            String   @id @default(cuid())
+  stripeEventId String   @unique
+  type          String
+  createdAt     DateTime @default(now())
+}
