@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { usePrivy } from '@privy-io/react-auth';
+import { useEffect, useState } from 'react';
 import { House, Package, Bag } from 'phosphor-react';
 
 const navItems = [
@@ -12,6 +14,50 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { authenticated, ready, login, getAccessToken } = usePrivy();
+  const [authorized, setAuthorized] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    if (!ready) return;
+    if (!authenticated) {
+      login();
+      setChecking(false);
+      return;
+    }
+
+    async function checkRole() {
+      try {
+        const token = await getAccessToken();
+        const res = await fetch('/api/auth/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+        const data = await res.json();
+        if (data.isAuthenticated && data.role === 'ADMIN') {
+          setAuthorized(true);
+        } else {
+          router.push('/');
+        }
+      } catch {
+        router.push('/');
+      }
+      setChecking(false);
+    }
+    checkRole();
+  }, [ready, authenticated]);
+
+  if (checking || !authorized) {
+    return (
+      <div className="min-h-screen bg-[#131313] flex items-center justify-center">
+        <p className="text-white/40 text-sm uppercase tracking-widest animate-pulse">
+          {!ready || checking ? 'Loading...' : 'Unauthorized'}
+        </p>
+      </div>
+    );
+  }
 
   function isActive(href: string) {
     if (href === '/admin') return pathname === '/admin';

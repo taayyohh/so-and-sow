@@ -3,6 +3,8 @@ const GATEWAY_TOKEN = process.env.NEXT_PUBLIC_PINATA_GATEWAY_TOKEN || '';
 
 export function ipfsUrl(cidOrUrl: string): string {
   if (!cidOrUrl) return '';
+  // Local paths — return as-is
+  if (cidOrUrl.startsWith('/') && !cidOrUrl.startsWith('/ipfs/')) return cidOrUrl;
   if (cidOrUrl.startsWith('ipfs://')) {
     const cid = cidOrUrl.replace('ipfs://', '');
     const tokenParam = GATEWAY_TOKEN ? `?pinataGatewayToken=${GATEWAY_TOKEN}` : '';
