@@ -34,7 +34,7 @@ export function Navigation() {
     <nav className="border-b border-white/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         <Link href="/">
-          <Image src="/logo-white.png" alt="Lucid Haus" width={60} height={30} priority className="invert-0" />
+          <Image src="/logo-white.png" alt="Lucid Haus" width={120} height={52} priority />
         </Link>
 
         {/* Desktop nav */}
