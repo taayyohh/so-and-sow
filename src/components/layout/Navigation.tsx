@@ -39,7 +39,6 @@ export function Navigation() {
         {/* Desktop nav */}
         <div className="hidden sm:flex items-center gap-6">
           <Link href="/shop" className="text-sm text-white/70 hover:text-white transition-colors">Shop</Link>
-          <Link href="/epk" className="text-sm text-white/70 hover:text-white transition-colors">EPK</Link>
           {userRole === 'ADMIN' && (
             <Link href="/admin" className="text-sm text-opal-400 hover:text-opal-300 transition-colors">Admin</Link>
           )}
@@ -84,7 +83,6 @@ export function Navigation() {
       {isMenuOpen && (
         <div className="sm:hidden border-t border-white/10 px-4 py-4 space-y-3">
           <Link href="/shop" className="block text-sm text-white/70" onClick={() => setIsMenuOpen(false)}>Shop</Link>
-          <Link href="/epk" className="block text-sm text-white/70" onClick={() => setIsMenuOpen(false)}>EPK</Link>
           {userRole === 'ADMIN' && (
             <Link href="/admin" className="block text-sm text-opal-400" onClick={() => setIsMenuOpen(false)}>Admin</Link>
           )}

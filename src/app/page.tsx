@@ -44,18 +44,12 @@ export default async function HomePage() {
         <p className="text-white/40 text-sm uppercase tracking-widest">Coming Soon</p>
       )}
 
-      <div className="flex gap-6 mt-12">
+      <div className="mt-12">
         <Link
           href="/shop"
           className="py-3 px-8 border border-white-13 text-white/60 text-sm tracking-widest uppercase hover:text-white hover:border-white transition-colors"
         >
           All Products
-        </Link>
-        <Link
-          href="/epk"
-          className="py-3 px-8 border border-white-13 text-white/60 text-sm tracking-widest uppercase hover:text-white hover:border-white transition-colors"
-        >
-          Press Kit
         </Link>
       </div>
     </div>

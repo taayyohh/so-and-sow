@@ -25,14 +25,12 @@ export default function PreorderButton({ product }: PreorderButtonProps) {
   const handlePreorder = () => {
     if (isSoldOut) return
 
-    addToCart({
-      productId: product.id,
-      quantity: 1,
-      price: product.price,
-      size: null,
-      productName: product.name,
-      productImage: product.images[0] ? ipfsUrl(product.images[0]) : '',
-    })
+    addToCart(
+      product.id,
+      1,
+      product.price,
+      { id: product.id, name: product.name, images: product.images, price: product.price, quantity: product.quantity }
+    )
 
     toast.success('Added to cart')
   }
