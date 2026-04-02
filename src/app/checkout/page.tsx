@@ -144,8 +144,8 @@ export default function CheckoutPage() {
 
   const inputClass = 'w-full p-3 border border-white/20 bg-[#1b1b1b] text-white text-sm focus:outline-none focus:border-white transition-colors';
 
-  const totalQuantity = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
-  const fallbackShipping = totalQuantity > 5 ? 10.00 : 5.00;
+  const isInternational = formData.country !== 'US';
+  const fallbackShipping = isInternational ? 25.00 : 5.00;
 
   return (
     <StripeProvider>

@@ -76,8 +76,10 @@ export async function POST(req: NextRequest) {
       return sum + (product.price * item.quantity);
     }, 0);
 
-    const totalQuantity = cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0);
-    const SHIPPING_AMOUNT = totalQuantity > 5 ? 10.00 : 5.00;
+    // Shipping: $5 domestic, $25 international
+    const country = shippingAddress?.country || 'US';
+    const isInternational = country !== 'US';
+    const SHIPPING_AMOUNT = isInternational ? 25.00 : 5.00;
     let taxAmount = 0;
 
     const stripe = getStripe();
