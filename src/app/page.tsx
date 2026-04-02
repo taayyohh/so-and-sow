@@ -1,56 +1,58 @@
 import { prisma } from '@/lib/prisma';
 import { ipfsUrl } from '@/lib/ipfs';
 import Image from 'next/image';
-import Link from 'next/link';
 import PreorderButton from './PreorderButton';
 
 export default async function HomePage() {
-  // Get the featured/first product (the vinyl preorder)
   const vinyl = await prisma.product.findFirst({
     where: { isActive: true, isArchived: false },
     include: { stock: true },
     orderBy: { isFeatured: 'desc' },
   });
 
-  return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
-      <h1 className="font-handwritten text-6xl sm:text-8xl text-white mb-2">
-        Sow &amp; So
-      </h1>
-      <p className="text-xs tracking-[0.3em] uppercase text-white/50 mb-12 font-light">
-        Nappy Nina
-      </p>
+  if (!vinyl) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <p className="text-white/40 text-sm uppercase tracking-widest">Coming Soon</p>
+      </div>
+    );
+  }
 
-      {vinyl ? (
-        <div className="max-w-md w-full">
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-12 min-h-[calc(100vh-160px)] items-center">
+        {/* Album art */}
+        <div>
           {vinyl.images[0] && (
-            <div className="relative aspect-square border border-white-13 mb-6">
+            <div className="relative aspect-square">
               <Image
                 src={ipfsUrl(vinyl.images[0])}
                 alt={vinyl.name}
                 fill
                 className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
                 priority
               />
             </div>
           )}
-          <div className="text-center mb-6">
-            <h2 className="text-white text-lg uppercase">{vinyl.name}</h2>
-            <p className="text-white/60 text-xl mt-1">${vinyl.price.toFixed(2)}</p>
-          </div>
-          <PreorderButton product={vinyl} />
         </div>
-      ) : (
-        <p className="text-white/40 text-sm uppercase tracking-widest">Coming Soon</p>
-      )}
 
-      <div className="mt-12">
-        <Link
-          href="/shop"
-          className="py-3 px-8 border border-white-13 text-white/60 text-sm tracking-widest uppercase hover:text-white hover:border-white transition-colors"
-        >
-          All Products
-        </Link>
+        {/* Product info */}
+        <div className="flex flex-col justify-center">
+          <p className="text-xs tracking-[0.3em] uppercase text-white/40 mb-2">Nappy Nina</p>
+          <h1 className="text-2xl sm:text-3xl uppercase tracking-wide text-white mb-2">
+            {vinyl.name}
+          </h1>
+          <p className="text-white/60 text-lg mb-8">${vinyl.price.toFixed(2)}</p>
+
+          <PreorderButton product={vinyl} />
+
+          {vinyl.description && (
+            <p className="text-white/40 text-sm mt-8 leading-relaxed whitespace-pre-line">
+              {vinyl.description}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

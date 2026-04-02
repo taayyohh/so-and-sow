@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: '#131313',
+        background: '#000000',
         foreground: '#ffffff',
         'white-13': 'rgba(255,255,255,0.13)',
         opal: {
@@ -28,7 +28,6 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        handwritten: ['var(--font-caveat)', 'cursive'],
       },
       animation: {
         'spin-slow': 'spin 3s linear infinite',

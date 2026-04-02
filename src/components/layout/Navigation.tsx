@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePrivy } from '@privy-io/react-auth';
 import { useCart } from '@/hooks/useCart';
 import { useState, useEffect } from 'react';
@@ -31,9 +32,9 @@ export function Navigation() {
 
   return (
     <nav className="border-b border-white/10">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="font-handwritten text-2xl text-white">
-          Sow &amp; So
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+        <Link href="/">
+          <Image src="/logo.png" alt="Lucid Haus" width={80} height={40} priority />
         </Link>
 
         {/* Desktop nav */}
