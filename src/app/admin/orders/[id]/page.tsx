@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { ipfsUrl } from '@/lib/ipfs';
 
@@ -66,8 +66,8 @@ function statusColor(status: string) {
   }
 }
 
-export default function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function AdminOrderDetailPage() {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { getAccessToken } = usePrivy();
   const [order, setOrder] = useState<OrderDetail | null>(null);
