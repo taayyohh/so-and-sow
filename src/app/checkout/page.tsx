@@ -211,21 +211,18 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <label htmlFor="country" className="block text-sm mb-1 text-white/70">Country</label>
-                  <input
+                  <select
                     id="country"
                     name="country"
-                    list="countries"
                     value={formData.country}
                     onChange={handleInputChange}
                     required
-                    placeholder="Start typing..."
                     className={inputClass}
-                  />
-                  <datalist id="countries">
+                  >
                     {COUNTRIES.map(c => (
                       <option key={c.code} value={c.code}>{c.name}</option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
               </div>
             </div>
