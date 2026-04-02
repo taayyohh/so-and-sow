@@ -9,13 +9,13 @@ function formatPrice(price: number) {
 }
 
 export default function OrdersPage() {
-  const { ready, authenticated, getAccessToken } = usePrivy();
+  const { ready, authenticated, getAccessToken, login } = usePrivy();
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (ready && !authenticated) { router.push('/'); return; }
+    if (ready && !authenticated) { login(); return; }
     if (!ready || !authenticated) return;
 
     async function fetchOrders() {
@@ -47,7 +47,14 @@ export default function OrdersPage() {
             <div key={order.id} className="border border-white/10 p-6 space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-xs text-white/50">{new Date(order.createdAt).toLocaleDateString()}</span>
-                <span className="text-xs px-2 py-1 border border-white/20 text-white/70">{order.status}</span>
+                <span className={`text-xs px-2 py-1 border border-white/20 ${
+                  order.status === 'CANCELED' ? 'text-red-400 border-red-400/30' :
+                  order.status === 'DELIVERED' ? 'text-green-400 border-green-400/30' :
+                  order.status === 'SHIPPED' ? 'text-blue-400 border-blue-400/30' :
+                  'text-white/70'
+                }`}>
+                  {order.status === 'CANCELED' ? 'REFUNDED' : order.status}
+                </span>
               </div>
               {order.items?.map((item: any) => (
                 <div key={item.id} className="flex justify-between text-sm text-white">
@@ -59,6 +66,9 @@ export default function OrdersPage() {
                 <span>Total</span>
                 <span>{formatPrice(order.total)}</span>
               </div>
+              {order.status === 'CANCELED' && (
+                <p className="text-xs text-white/30">A refund has been issued to your original payment method.</p>
+              )}
             </div>
           ))}
         </div>
