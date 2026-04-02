@@ -4,73 +4,123 @@ import { useState, useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import Link from 'next/link';
 
+interface AdminOrder {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  total: number;
+  status: string;
+  date: string;
+  items: { id: string; productName: string; quantity: number; price: number; size: string | null }[];
+}
+
+function formatPrice(price: number) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+}
+
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+const statuses = ['all', 'PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELED'];
+
 export default function AdminOrdersPage() {
   const { getAccessToken } = usePrivy();
-  const [orders, setOrders] = useState<any[]>([]);
-  const [statusFilter, setStatusFilter] = useState('');
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('all');
 
-  useEffect(() => {
-    async function fetchOrders() {
+  async function fetchOrders() {
+    setLoading(true);
+    try {
       const token = await getAccessToken();
       const res = await fetch('/api/graphql', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          query: `query($status: String) { adminOrders(status: $status) { id customerName customerEmail total status date } }`,
-          variables: { status: statusFilter || null },
+          query: `query($status: String, $limit: Int) { adminOrders(status: $status, limit: $limit) { id customerName customerEmail total status date items { id productName quantity price size } } }`,
+          variables: {
+            status: statusFilter === 'all' ? null : statusFilter,
+            limit: 50,
+          },
         }),
       });
-      const data = await res.json();
-      setOrders(data.data?.adminOrders || []);
+      if (res.ok) {
+        const data = await res.json();
+        setOrders(data.data?.adminOrders || []);
+      }
+    } catch (err) {
+      // silent
+    } finally {
+      setLoading(false);
     }
-    fetchOrders();
-  }, [getAccessToken, statusFilter]);
+  }
 
-  const statuses = ['', 'PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELED'];
+  useEffect(() => {
+    fetchOrders();
+  }, [statusFilter]);
 
   return (
-    <div>
-      <h1 className="text-xl font-medium mb-8 text-white">Orders</h1>
-      <div className="flex gap-2 mb-6">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+      <h1 className="text-sm tracking-[0.3em] uppercase font-medium mb-8 text-white">Manage Orders</h1>
+
+      {/* Status filter */}
+      <div className="flex flex-wrap gap-2 mb-6">
         {statuses.map((s) => (
           <button
             key={s}
             onClick={() => setStatusFilter(s)}
-            className={`text-xs px-3 py-1.5 border transition-colors ${statusFilter === s ? 'border-white text-white' : 'border-white/20 text-white/50 hover:text-white'}`}
+            className={`py-1.5 px-3 text-xs tracking-wide transition-colors ${
+              statusFilter === s
+                ? 'bg-white text-[#131313]'
+                : 'border border-white/10 text-white/50 hover:bg-white/5'
+            }`}
           >
-            {s || 'All'}
+            {s === 'all' ? 'All' : s}
           </button>
         ))}
       </div>
-      <div className="border border-white/10">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-white/10 text-white/50 text-left">
-              <th className="p-3">Customer</th>
-              <th className="p-3">Total</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Date</th>
-              <th className="p-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((o) => (
-              <tr key={o.id} className="border-b border-white/5 text-white">
-                <td className="p-3">
-                  <div>{o.customerName}</div>
-                  <div className="text-xs text-white/50">{o.customerEmail}</div>
-                </td>
-                <td className="p-3">${o.total.toFixed(2)}</td>
-                <td className="p-3"><span className="text-xs">{o.status}</span></td>
-                <td className="p-3 text-xs text-white/50">{new Date(o.date).toLocaleDateString()}</td>
-                <td className="p-3">
-                  <Link href={`/admin/orders/${o.id}`} className="text-opal-400 hover:text-opal-300 text-xs">View</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+
+      {loading ? (
+        <div className="animate-pulse space-y-3">
+          {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-16 bg-white/10" />)}
+        </div>
+      ) : (
+        <div className="border-t border-white/10">
+          {orders.map((order) => (
+            <Link
+              key={order.id}
+              href={`/admin/orders/${order.id}`}
+              className="block py-4 border-b border-white/10 hover:bg-white/5 transition-colors px-2 -mx-2"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-medium text-white">
+                    #{order.id.slice(-8).toUpperCase()}
+                  </p>
+                  <p className="text-xs text-white/50 mt-0.5">
+                    {order.customerName}
+                  </p>
+                  <p className="text-xs text-white/40 mt-0.5">{formatDate(order.date)}</p>
+                  <p className="text-xs text-white/50 mt-1">
+                    {order.items?.map(item => `${item.productName}${item.size ? ` (${item.size})` : ''} x${item.quantity}`).join(', ')}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-white">{formatPrice(order.total)}</p>
+                  <p className="text-xs text-white/50 mt-1">{order.status}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
+          {orders.length === 0 && (
+            <p className="text-sm text-white/50 py-6 text-center">No orders found.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -22,11 +22,13 @@ export function ImageUpload({ images, onChange, maxImages = 5, label = 'Product 
     const token = await getAccessToken();
     const formData = new FormData();
     formData.append('file', file);
+
     const res = await fetch('/api/upload', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
     });
+
     if (!res.ok) throw new Error('Upload failed');
     const data = await res.json();
     return data.cid;
@@ -35,9 +37,11 @@ export function ImageUpload({ images, onChange, maxImages = 5, label = 'Product 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
     const fileArray = Array.from(files).filter(f => f.type.startsWith('image/'));
     if (fileArray.length === 0) return;
+
     const remaining = maxImages - images.length;
     const toUpload = fileArray.slice(0, remaining);
     if (toUpload.length === 0) return;
+
     setUploading(true);
     try {
       const newCids = await Promise.all(toUpload.map(f => uploadFile(f)));
@@ -52,8 +56,19 @@ export function ImageUpload({ images, onChange, maxImages = 5, label = 'Product 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
+    if (e.dataTransfer.files.length > 0) {
+      handleFiles(e.dataTransfer.files);
+    }
   }, [handleFiles]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOver(false);
+  }, []);
 
   const removeImage = useCallback((index: number) => {
     onChange(images.filter((_, i) => i !== index));
@@ -62,11 +77,17 @@ export function ImageUpload({ images, onChange, maxImages = 5, label = 'Product 
   return (
     <div>
       <label className="block text-sm mb-2 text-white/70">{label}</label>
+
+      {/* Existing images */}
       {images.length > 0 && (
         <div className="flex flex-wrap gap-3 mb-3">
           {images.map((cid, index) => (
             <div key={cid} className="relative w-24 h-24 bg-[#1b1b1b] overflow-hidden group">
-              <img src={ipfsUrl(cid)} alt={`Image ${index + 1}`} className="w-full h-full object-cover" />
+              <img
+                src={ipfsUrl(cid)}
+                alt={`Image ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
               <button
                 type="button"
                 onClick={() => removeImage(index)}
@@ -75,20 +96,26 @@ export function ImageUpload({ images, onChange, maxImages = 5, label = 'Product 
                 <X size={12} />
               </button>
               {index === 0 && (
-                <span className="absolute bottom-0 left-0 right-0 text-[10px] text-center bg-black/60 text-white py-0.5">Main</span>
+                <span className="absolute bottom-0 left-0 right-0 text-[10px] text-center bg-black/60 text-white py-0.5">
+                  Main
+                </span>
               )}
             </div>
           ))}
         </div>
       )}
+
+      {/* Drop zone */}
       {images.length < maxImages && (
         <div
           onDrop={handleDrop}
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
           onClick={() => fileInputRef.current?.click()}
           className={`border-2 border-dashed p-6 text-center cursor-pointer transition-colors ${
-            dragOver ? 'border-white bg-white/5' : 'border-white/20 hover:border-white/40'
+            dragOver
+              ? 'border-white bg-white/5'
+              : 'border-white/20 hover:border-white/40'
           }`}
         >
           {uploading ? (
@@ -99,11 +126,22 @@ export function ImageUpload({ images, onChange, maxImages = 5, label = 'Product 
           ) : (
             <div className="flex flex-col items-center gap-2">
               <ImageIcon size={24} className="text-white/30" />
-              <p className="text-xs text-white/50">Drag & drop images here, or click to browse</p>
-              <p className="text-[10px] text-white/30">{images.length}/{maxImages} images</p>
+              <p className="text-xs text-white/50">
+                Drag & drop images here, or click to browse
+              </p>
+              <p className="text-[10px] text-white/30">
+                {images.length}/{maxImages} images &middot; JPG, PNG, WebP
+              </p>
             </div>
           )}
-          <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={(e) => e.target.files && handleFiles(e.target.files)} className="hidden" />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => e.target.files && handleFiles(e.target.files)}
+            className="hidden"
+          />
         </div>
       )}
     </div>

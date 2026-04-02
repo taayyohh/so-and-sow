@@ -9,32 +9,57 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const { id } = use(params);
   const router = useRouter();
   const { getAccessToken } = usePrivy();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', description: '', price: '', category: '', quantity: '', isActive: true });
-  const [images, setImages] = useState<string[]>([]);
-  const [sizes, setSizes] = useState<{ size: string; quantity: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+  const [isArchived, setIsArchived] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [images, setImages] = useState<string[]>([]);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    price: '',
+    category: '',
+    quantity: '',
+    isActive: true,
+  });
+  const [sizes, setSizes] = useState<{ size: string; quantity: string }[]>([]);
 
   useEffect(() => {
     async function fetchProduct() {
-      const token = await getAccessToken();
-      const res = await fetch('/api/graphql', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          query: `query($id: ID!) { product(id: $id) { id name description price category quantity isActive images stock { size quantity } } }`,
-          variables: { id },
-        }),
-      });
-      const data = await res.json();
-      const p = data.data?.product;
-      if (p) {
-        setForm({ name: p.name, description: p.description, price: String(p.price), category: p.category, quantity: String(p.quantity), isActive: p.isActive });
-        setImages(p.images || []);
-        setSizes((p.stock || []).map((s: any) => ({ size: s.size, quantity: String(s.quantity) })));
+      try {
+        const token = await getAccessToken();
+        const res = await fetch('/api/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            query: `query($id: ID!) { product(id: $id) { id name description price category quantity isActive isArchived images stock { size quantity } } }`,
+            variables: { id },
+          }),
+        });
+        const data = await res.json();
+        const product = data.data?.product;
+        if (product) {
+          setImages(product.images || []);
+          setIsArchived(product.isArchived || false);
+          setFormData({
+            name: product.name || '',
+            description: product.description || '',
+            price: String(product.price || ''),
+            category: product.category || '',
+            quantity: String(product.quantity || ''),
+            isActive: product.isActive,
+          });
+          setSizes((product.stock || []).map((s: any) => ({ size: s.size, quantity: String(s.quantity) })));
+        }
+      } catch (err) {
+        // silent
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchProduct();
   }, [id, getAccessToken]);
@@ -42,71 +67,178 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const addSize = () => setSizes([...sizes, { size: '', quantity: '' }]);
   const removeSize = (i: number) => setSizes(sizes.filter((_, idx) => idx !== i));
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const inputClass = 'w-full p-3 border border-white/20 bg-[#1b1b1b] text-white text-sm focus:outline-none focus:border-white transition-colors';
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setIsSubmitting(true);
+    setSaving(true);
     setError(null);
+
     try {
       const token = await getAccessToken();
+      const validSizes = sizes.filter(s => s.size.trim());
+
       const res = await fetch('/api/graphql', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           query: `mutation UpdateProduct($id: ID!, $input: UpdateProductInput!) { updateProduct(id: $id, input: $input) { id } }`,
           variables: {
             id,
             input: {
-              name: form.name, description: form.description, price: parseFloat(form.price),
-              category: form.category, images, quantity: parseInt(form.quantity) || 0, isActive: form.isActive,
-              ...(sizes.length > 0 ? { sizes: sizes.filter(s => s.size).map(s => ({ size: s.size, quantity: parseInt(s.quantity) || 0 })) } : {}),
+              name: formData.name,
+              description: formData.description,
+              price: parseFloat(formData.price),
+              category: formData.category,
+              images,
+              quantity: parseInt(formData.quantity) || 0,
+              isActive: formData.isActive,
+              ...(validSizes.length > 0 ? {
+                sizes: validSizes.map(s => ({ size: s.size, quantity: parseInt(s.quantity) || 0 })),
+              } : {}),
             },
           },
         }),
       });
+
       const data = await res.json();
-      if (data.data?.updateProduct) router.push('/admin/products');
-      else setError(data.errors?.[0] || 'Failed to update');
-    } catch { setError('Failed to update'); } finally { setIsSubmitting(false); }
-  };
+      if (data.errors) throw new Error(data.errors[0]?.message || data.errors[0] || 'Failed to update product');
+      router.push('/admin/products');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update product');
+    } finally {
+      setSaving(false);
+    }
+  }
 
-  if (loading) return <div className="text-white/50 py-12">Loading...</div>;
-
-  const inputClass = 'w-full p-3 border border-white/20 bg-[#1b1b1b] text-white text-sm focus:outline-none focus:border-white transition-colors';
+  if (loading) {
+    return (
+      <div className="max-w-lg mx-auto px-4 sm:px-6 py-12 animate-pulse">
+        <div className="h-4 bg-white/10 w-32 mb-8" />
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-12 bg-white/10" />)}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="text-xl font-medium mb-8 text-white">Edit Product</h1>
-      {error && <div className="p-4 bg-red-900/30 border border-red-500/30 mb-6"><p className="text-sm text-red-400">{error}</p></div>}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div><label className="block text-sm mb-1 text-white/70">Name</label><input type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required className={inputClass} /></div>
-        <div><label className="block text-sm mb-1 text-white/70">Description</label><textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} rows={4} className={inputClass} /></div>
-        <div className="grid grid-cols-2 gap-4">
-          <div><label className="block text-sm mb-1 text-white/70">Price ($)</label><input type="number" step="0.01" value={form.price} onChange={e => setForm({...form, price: e.target.value})} required className={inputClass} /></div>
-          <div><label className="block text-sm mb-1 text-white/70">Category</label><input type="text" value={form.category} onChange={e => setForm({...form, category: e.target.value})} className={inputClass} /></div>
+    <div className="max-w-lg mx-auto px-4 sm:px-6 py-12">
+      <h1 className="text-sm tracking-[0.3em] uppercase font-medium mb-8 text-white">Edit Product</h1>
+
+      {error && (
+        <div className="p-3 bg-red-900/30 border border-red-500/30 text-red-400 text-sm mb-6">{error}</div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm mb-1 text-white/70">Name</label>
+          <input type="text" value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))} required className={inputClass} />
         </div>
-        <div><label className="block text-sm mb-1 text-white/70">Quantity</label><input type="number" value={form.quantity} onChange={e => setForm({...form, quantity: e.target.value})} className={inputClass} /></div>
-        <div className="flex items-center gap-2">
-          <input type="checkbox" checked={form.isActive} onChange={e => setForm({...form, isActive: e.target.checked})} id="isActive" />
-          <label htmlFor="isActive" className="text-sm text-white/70">Active</label>
+        <div>
+          <label className="block text-sm mb-1 text-white/70">Description</label>
+          <textarea value={formData.description} onChange={e => setFormData(p => ({ ...p, description: e.target.value }))} rows={4} className={inputClass} />
         </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm mb-1 text-white/70">Price ($)</label>
+            <input type="number" step="0.01" value={formData.price} onChange={e => setFormData(p => ({ ...p, price: e.target.value }))} required className={inputClass} />
+          </div>
+          <div>
+            <label className="block text-sm mb-1 text-white/70">Quantity</label>
+            <input type="number" value={formData.quantity} onChange={e => setFormData(p => ({ ...p, quantity: e.target.value }))} required className={inputClass} />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm mb-1 text-white/70">Category</label>
+          <input type="text" value={formData.category} onChange={e => setFormData(p => ({ ...p, category: e.target.value }))} className={inputClass} />
+        </div>
+
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={formData.isActive}
+            onChange={e => setFormData(p => ({ ...p, isActive: e.target.checked }))}
+            id="isActive"
+            className="w-4 h-4"
+          />
+          <label htmlFor="isActive" className="text-sm text-white/70">Active (visible in store)</label>
+        </div>
+
         <ImageUpload images={images} onChange={setImages} />
+
+        {/* Size / Stock Management */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm text-white/70">Sizes</label>
-            <button type="button" onClick={addSize} className="text-xs text-opal-400">+ Add Size</button>
+            <label className="text-sm text-white/70">Sizes &amp; Stock</label>
+            <button type="button" onClick={addSize} className="text-xs text-white/50 hover:text-white transition-colors">
+              + Add Size
+            </button>
           </div>
           {sizes.map((s, i) => (
             <div key={i} className="flex gap-2 mb-2">
-              <input placeholder="Size" value={s.size} onChange={e => { const ns = [...sizes]; ns[i].size = e.target.value; setSizes(ns); }} className={inputClass} />
-              <input type="number" placeholder="Qty" value={s.quantity} onChange={e => { const ns = [...sizes]; ns[i].quantity = e.target.value; setSizes(ns); }} className={`${inputClass} w-24`} />
-              <button type="button" onClick={() => removeSize(i)} className="text-red-400 px-2">X</button>
+              <input
+                placeholder="Size (S, M, L...)"
+                value={s.size}
+                onChange={e => { const ns = [...sizes]; ns[i].size = e.target.value; setSizes(ns); }}
+                className={inputClass}
+              />
+              <input
+                type="number"
+                placeholder="Qty"
+                value={s.quantity}
+                onChange={e => { const ns = [...sizes]; ns[i].quantity = e.target.value; setSizes(ns); }}
+                className={`${inputClass} w-24`}
+              />
+              <button type="button" onClick={() => removeSize(i)} className="text-red-400 hover:text-red-300 px-2 transition-colors">
+                X
+              </button>
             </div>
           ))}
         </div>
-        <button type="submit" disabled={isSubmitting} className="w-full py-3 bg-white text-[#131313] text-sm tracking-widest uppercase hover:bg-white/90 disabled:opacity-50">
-          {isSubmitting ? 'Saving...' : 'Save Changes'}
-        </button>
+
+        <div className="flex gap-3 pt-4">
+          <button type="submit" disabled={saving} className="flex-1 py-3 bg-white text-[#131313] text-sm tracking-widest uppercase hover:bg-white/90 transition-colors disabled:opacity-50">
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+          <button type="button" onClick={() => router.back()} className="py-3 px-6 border border-white text-white text-sm tracking-widest uppercase hover:bg-white hover:text-[#131313] transition-colors">
+            Cancel
+          </button>
+        </div>
       </form>
+
+      {/* Archive toggle */}
+      <div className="border-t border-white/10 mt-10 pt-6">
+        <button
+          type="button"
+          disabled={archiving}
+          onClick={async () => {
+            setArchiving(true);
+            try {
+              const token = await getAccessToken();
+              await fetch('/api/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                  query: `mutation UpdateProduct($id: ID!, $input: UpdateProductInput!) { updateProduct(id: $id, input: $input) { id } }`,
+                  variables: { id, input: { isArchived: !isArchived, isActive: isArchived } },
+                }),
+              });
+              router.push('/admin/products');
+            } catch {
+              setError('Failed to update product');
+            } finally {
+              setArchiving(false);
+            }
+          }}
+          className="text-sm text-white/50 hover:text-white transition-colors disabled:opacity-50"
+        >
+          {archiving ? 'Processing...' : isArchived ? 'Unarchive Product' : 'Archive Product'}
+        </button>
+      </div>
     </div>
   );
 }
