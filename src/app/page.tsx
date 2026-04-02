@@ -14,11 +14,11 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
-      <h1 className="text-5xl sm:text-7xl font-bold tracking-widest uppercase text-white mb-2">
-        SO AND SOW
+      <h1 className="font-handwritten text-6xl sm:text-8xl text-white mb-2">
+        Sow &amp; So
       </h1>
-      <p className="text-lg sm:text-xl tracking-[0.3em] uppercase text-white/60 mb-12">
-        NAPPY NINA
+      <p className="text-xs tracking-[0.3em] uppercase text-white/50 mb-12 font-light">
+        Nappy Nina
       </p>
 
       {vinyl ? (

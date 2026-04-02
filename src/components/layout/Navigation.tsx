@@ -32,8 +32,8 @@ export function Navigation() {
   return (
     <nav className="border-b border-white/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="text-lg font-bold tracking-widest uppercase text-white">
-          SO AND SOW
+        <Link href="/" className="font-handwritten text-2xl text-white">
+          Sow &amp; So
         </Link>
 
         {/* Desktop nav */}
