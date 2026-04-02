@@ -104,6 +104,7 @@ type Order {
   shippingAddress: JSON
   stripeSessionId: String
   trackingNumber: String
+  receiptUrl: String
   user: User
   items: [OrderItem!]!
   createdAt: DateTime!

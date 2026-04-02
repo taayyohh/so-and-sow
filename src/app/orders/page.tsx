@@ -24,7 +24,7 @@ export default function OrdersPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          query: '{ userOrders { id total status createdAt items { id name quantity price size } } }',
+          query: '{ userOrders { id total status createdAt receiptUrl items { id name quantity price size } } }',
         }),
       });
       const data = await res.json();
@@ -68,6 +68,11 @@ export default function OrdersPage() {
               </div>
               {order.status === 'CANCELED' && (
                 <p className="text-xs text-white/30">A refund has been issued to your original payment method.</p>
+              )}
+              {order.receiptUrl && (
+                <a href={order.receiptUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-white/40 hover:text-white transition-colors">
+                  View Receipt &rarr;
+                </a>
               )}
             </div>
           ))}
