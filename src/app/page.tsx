@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { ipfsUrl } from '@/lib/ipfs';
 import Image from 'next/image';
+import Link from 'next/link';
 import PreorderButton from './PreorderButton';
 
 export default async function HomePage() {
@@ -21,10 +22,10 @@ export default async function HomePage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-12 min-h-[calc(100vh-160px)] items-center">
-        {/* Album art */}
-        <div>
+        {/* Album art — click to see detail with all images */}
+        <Link href={`/shop/${vinyl.slug}`}>
           {vinyl.images[0] && (
-            <div className="relative aspect-square">
+            <div className="relative aspect-square cursor-pointer hover:opacity-90 transition-opacity">
               <Image
                 src={ipfsUrl(vinyl.images[0])}
                 alt={vinyl.name}
@@ -35,7 +36,7 @@ export default async function HomePage() {
               />
             </div>
           )}
-        </div>
+        </Link>
 
         {/* Product info */}
         <div className="flex flex-col justify-center">
