@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Space_Mono } from 'next/font/google';
 import './globals.css';
 import RootLayoutClient from './RootLayoutClient';
 
-const inter = Inter({ subsets: ['latin'], weight: ['300', '400', '500'], variable: '--font-inter' });
+const spaceMono = Space_Mono({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-mono' });
 
 export const metadata: Metadata = {
   title: 'Sow & So | Nappy Nina',
@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans bg-black text-white antialiased text-sm font-light`}>
+      <body className={`${spaceMono.variable} font-sans bg-black text-white antialiased text-sm`}>
         <RootLayoutClient>{children}</RootLayoutClient>
       </body>
     </html>
