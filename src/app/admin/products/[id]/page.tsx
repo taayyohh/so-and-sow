@@ -201,10 +201,10 @@ export default function EditProductPage() {
         </div>
 
         <div className="flex gap-3 pt-4">
-          <button type="submit" disabled={saving} className="flex-1 py-3 bg-white text-[#131313] text-sm tracking-widest uppercase hover:bg-white/90 transition-colors disabled:opacity-50">
+          <button type="submit" disabled={saving} className="flex-1 py-3 bg-white text-[black] text-sm tracking-widest uppercase hover:bg-white/90 transition-colors disabled:opacity-50">
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
-          <button type="button" onClick={() => router.back()} className="py-3 px-6 border border-white text-white text-sm tracking-widest uppercase hover:bg-white hover:text-[#131313] transition-colors">
+          <button type="button" onClick={() => router.back()} className="py-3 px-6 border border-white text-white text-sm tracking-widest uppercase hover:bg-white hover:text-[black] transition-colors">
             Cancel
           </button>
         </div>

@@ -76,7 +76,7 @@ export default function AdminProductsPage() {
         <h1 className="text-sm tracking-[0.3em] uppercase font-medium text-white">Products</h1>
         <Link
           href="/admin/products/new"
-          className="flex items-center gap-2 py-2 px-4 bg-white text-[#131313] text-xs tracking-widest uppercase hover:bg-white/90 transition-colors"
+          className="flex items-center gap-2 py-2 px-4 bg-white text-[black] text-xs tracking-widest uppercase hover:bg-white/90 transition-colors"
         >
           <Plus size={14} />
           Add Product
@@ -87,7 +87,7 @@ export default function AdminProductsPage() {
         <button
           onClick={() => setShowArchived(false)}
           className={`py-1.5 px-3 text-xs tracking-wide transition-colors ${
-            !showArchived ? 'bg-white text-[#131313]' : 'border border-white/10 text-white/50 hover:bg-white/5'
+            !showArchived ? 'bg-white text-[black]' : 'border border-white/10 text-white/50 hover:bg-white/5'
           }`}
         >
           Active
@@ -95,7 +95,7 @@ export default function AdminProductsPage() {
         <button
           onClick={() => setShowArchived(true)}
           className={`py-1.5 px-3 text-xs tracking-wide transition-colors ${
-            showArchived ? 'bg-white text-[#131313]' : 'border border-white/10 text-white/50 hover:bg-white/5'
+            showArchived ? 'bg-white text-[black]' : 'border border-white/10 text-white/50 hover:bg-white/5'
           }`}
         >
           Archived

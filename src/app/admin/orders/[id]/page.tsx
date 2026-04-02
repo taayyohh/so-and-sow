@@ -223,7 +223,7 @@ export default function AdminOrderDetailPage() {
               disabled={updating || order.status === s}
               className={`py-1.5 px-4 text-xs tracking-wide transition-colors disabled:opacity-40 ${
                 order.status === s
-                  ? 'bg-white text-[#131313]'
+                  ? 'bg-white text-[black]'
                   : 'border border-white/10 text-white/50 hover:bg-white/5'
               }`}
             >

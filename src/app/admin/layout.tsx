@@ -51,7 +51,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (checking || !authorized) {
     return (
-      <div className="min-h-screen bg-[#131313] flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <p className="text-white/40 text-sm uppercase tracking-widest animate-pulse">
           {!ready || checking ? 'Loading...' : 'Unauthorized'}
         </p>
@@ -65,7 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex min-h-screen bg-[#131313]">
+    <div className="flex min-h-screen bg-black">
       {/* Sidebar */}
       <aside className="w-56 border-r border-white/10 p-6 hidden md:block">
         <Link href="/admin" className="block mb-8">
@@ -94,7 +94,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Mobile nav */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#131313] border-t border-white/10 flex z-50">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-black border-t border-white/10 flex z-50">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
