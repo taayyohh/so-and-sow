@@ -7,6 +7,21 @@ import { useCart } from '@/hooks/useCart';
 import { StripeProvider } from '@/components/providers/StripeProvider';
 import { PaymentForm } from '@/components/checkout/PaymentForm';
 
+const COUNTRIES = [
+  {code:'US',name:'United States'},{code:'CA',name:'Canada'},{code:'GB',name:'United Kingdom'},{code:'DE',name:'Germany'},{code:'FR',name:'France'},
+  {code:'NL',name:'Netherlands'},{code:'BE',name:'Belgium'},{code:'AT',name:'Austria'},{code:'CH',name:'Switzerland'},{code:'IT',name:'Italy'},
+  {code:'ES',name:'Spain'},{code:'PT',name:'Portugal'},{code:'IE',name:'Ireland'},{code:'SE',name:'Sweden'},{code:'NO',name:'Norway'},
+  {code:'DK',name:'Denmark'},{code:'FI',name:'Finland'},{code:'PL',name:'Poland'},{code:'CZ',name:'Czech Republic'},{code:'JP',name:'Japan'},
+  {code:'AU',name:'Australia'},{code:'NZ',name:'New Zealand'},{code:'BR',name:'Brazil'},{code:'MX',name:'Mexico'},{code:'AR',name:'Argentina'},
+  {code:'CL',name:'Chile'},{code:'CO',name:'Colombia'},{code:'KR',name:'South Korea'},{code:'SG',name:'Singapore'},{code:'HK',name:'Hong Kong'},
+  {code:'TW',name:'Taiwan'},{code:'IN',name:'India'},{code:'ZA',name:'South Africa'},{code:'IL',name:'Israel'},{code:'AE',name:'UAE'},
+  {code:'GR',name:'Greece'},{code:'HR',name:'Croatia'},{code:'RO',name:'Romania'},{code:'HU',name:'Hungary'},{code:'BG',name:'Bulgaria'},
+  {code:'SK',name:'Slovakia'},{code:'SI',name:'Slovenia'},{code:'LT',name:'Lithuania'},{code:'LV',name:'Latvia'},{code:'EE',name:'Estonia'},
+  {code:'IS',name:'Iceland'},{code:'LU',name:'Luxembourg'},{code:'MT',name:'Malta'},{code:'CY',name:'Cyprus'},{code:'PH',name:'Philippines'},
+  {code:'TH',name:'Thailand'},{code:'MY',name:'Malaysia'},{code:'ID',name:'Indonesia'},{code:'VN',name:'Vietnam'},{code:'NG',name:'Nigeria'},
+  {code:'KE',name:'Kenya'},{code:'GH',name:'Ghana'},{code:'EG',name:'Egypt'},{code:'MA',name:'Morocco'},{code:'PE',name:'Peru'},
+];
+
 function formatPrice(price: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
 }
@@ -196,10 +211,21 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <label htmlFor="country" className="block text-sm mb-1 text-white/70">Country</label>
-                  <select id="country" name="country" value={formData.country} onChange={handleInputChange} required className={inputClass}>
-                    <option value="US">United States</option>
-                    <option value="CA">Canada</option>
-                  </select>
+                  <input
+                    id="country"
+                    name="country"
+                    list="countries"
+                    value={formData.country}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Start typing..."
+                    className={inputClass}
+                  />
+                  <datalist id="countries">
+                    {COUNTRIES.map(c => (
+                      <option key={c.code} value={c.code}>{c.name}</option>
+                    ))}
+                  </datalist>
                 </div>
               </div>
             </div>
