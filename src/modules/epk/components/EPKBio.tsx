@@ -18,8 +18,8 @@ export default function EPKBio({ bio }: EPKBioProps) {
   const hasMore = paragraphs.length > 2
 
   return (
-    <div className="w-full sm:w-3/4 mx-auto prose prose-invert prose-xl">
-      <div className="text-white text-lg sm:text-xl leading-relaxed">
+    <div className="w-full sm:w-3/4 mx-auto">
+      <div className="text-white text-lg sm:text-xl leading-relaxed [&>p]:mb-6">
         <ReactMarkdown
           rehypePlugins={[rehypeRaw, rehypeSanitize]}
           remarkPlugins={[remarkGfm]}
