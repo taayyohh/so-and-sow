@@ -23,9 +23,9 @@ export const metadata: Metadata = {
     description: 'Pre-order Sow & So, the new album from Nappy Nina & Swarvy on vinyl. Limited edition.',
     images: [
       {
-        url: '/sow-and-so-grass.jpg',
-        width: 1920,
-        height: 1080,
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
         alt: 'Sow & So — Nappy Nina & Swarvy',
       },
     ],
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Sow & So | Nappy Nina & Swarvy',
     description: 'Pre-order Sow & So, the new album from Nappy Nina & Swarvy on vinyl. Limited edition.',
-    images: ['/sow-and-so-grass.jpg'],
+    images: ['/og-image.jpg'],
   },
 };
 

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Nappy Nina — Sow & So EPK',
     description: 'Electronic Press Kit for Sow & So by Nappy Nina.',
-    images: [{ url: '/sow-and-so-black.jpg', width: 1920, height: 1080 }],
+    images: [{ url: '/og-epk.jpg', width: 1200, height: 630 }],
   },
 };
 
