@@ -1,8 +1,8 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
+import Image from 'next/image'
 import { Tabs, Tab } from '@/components/ui/Tabs'
-import EPKHero from './EPKHero'
 import EPKBio from './EPKBio'
 import PressLinks from './PressLinks'
 import PressPhotos from './PressPhotos'
@@ -26,20 +26,48 @@ export default function EPKPageComponent({ epk }: EPKPageProps) {
         initial="closed"
         animate="open"
         exit="closed"
-        className="min-h-screen bg-[#131313]"
+        className="min-h-screen bg-black"
       >
-        <div className="w-full">
-          <EPKHero
-            videoSrc={epk.heroVideoSrc}
-            videoPoster={epk.heroVideoPoster}
-            artistName={epk.artist.name}
-          />
+        {/* Hero — Album Covers Side by Side */}
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 pt-8 pb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="relative aspect-square">
+              <Image
+                src="/epk-cover-front.jpg"
+                alt="Sow & So — Front Cover"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+              />
+            </div>
+            <div className="relative aspect-square">
+              <Image
+                src="/epk-cover-back.jpg"
+                alt="Sow & So — Back Cover"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+              />
+            </div>
+          </div>
+          <div className="text-center mt-6">
+            <a
+              href="https://untitled.stream/library/project/YMJSZLsRChFWae5XIMMUz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block py-3 px-8 border border-white/20 text-white text-sm tracking-widest uppercase hover:bg-white hover:text-black transition-colors"
+            >
+              Listen to &ldquo;Hear Know&rdquo;
+            </a>
+          </div>
         </div>
 
         <div className="mx-auto w-full sm:w-11/12 text-white">
           <div className="py-12 text-center">
             <h1 className="text-4xl sm:text-6xl font-bold uppercase">
-              {epk.artist.name}
+              {epk.artist.name} &amp; Swarvy
             </h1>
             {epk.album && (
               <p className="text-white/60 text-sm uppercase tracking-widest mt-4">
