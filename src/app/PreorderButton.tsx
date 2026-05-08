@@ -11,6 +11,7 @@ interface PreorderButtonProps {
     price: number
     images: string[]
     quantity: number
+    category?: string
     stock: { size: string; quantity: number }[]
   }
 }
@@ -41,7 +42,7 @@ export default function PreorderButton({ product }: PreorderButtonProps) {
       disabled={isSoldOut}
       className="w-full py-4 bg-white text-[#131313] text-sm tracking-widest uppercase font-medium hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      {isSoldOut ? 'Sold Out' : 'Pre-Order Vinyl'}
+      {isSoldOut ? 'Sold Out' : product.category === 'vinyl' ? 'Pre-Order Vinyl' : 'Add to Cart'}
     </button>
   )
 }
