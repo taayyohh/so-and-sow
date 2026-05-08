@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { ipfsUrl } from '@/lib/ipfs';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ProductDetailClient } from './ProductDetailClient';
@@ -14,9 +15,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     select: { name: true, description: true, images: true },
   });
   if (!product) return {};
+  const ogImage = product.images[0] ? ipfsUrl(product.images[0]) : '/og-image.jpg';
   return {
-    title: `${product.name} | So And Sow`,
+    title: `${product.name} | Sow & So`,
     description: product.description || product.name,
+    openGraph: {
+      title: `${product.name} — Nappy Nina & Swarvy`,
+      description: product.description || product.name,
+      images: [{ url: ogImage }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.name} — Nappy Nina & Swarvy`,
+      images: [ogImage],
+    },
   };
 }
 
