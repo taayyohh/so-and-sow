@@ -20,13 +20,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${product.name} | Sow & So`,
     description: product.description || product.name,
     openGraph: {
-      title: `${product.name} — Nappy Nina & Swarvy`,
+      title: `${product.name} — Lucidhaus`,
       description: product.description || product.name,
       images: [{ url: ogImage }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${product.name} — Nappy Nina & Swarvy`,
+      title: `${product.name} — Lucidhaus`,
       images: [ogImage],
     },
   };
