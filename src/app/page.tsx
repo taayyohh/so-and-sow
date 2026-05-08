@@ -4,6 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import PreorderButton from './PreorderButton';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const products = await prisma.product.findMany({
     where: { isActive: true, isArchived: false },
