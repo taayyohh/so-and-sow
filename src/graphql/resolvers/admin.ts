@@ -166,5 +166,20 @@ export const adminResolvers = {
       });
       return { id: order.id, notes: order.notes };
     },
+
+    updateItemShipment: async (_parent: any, args: { itemId: string; shipmentStatus: string; trackingNumber?: string }, context: GraphQLContext) => {
+      await requireAdmin(context);
+      const { prisma } = context;
+      const validStatuses = ['PENDING', 'SHIPPED', 'DELIVERED'];
+      if (!validStatuses.includes(args.shipmentStatus)) throw new Error('Invalid shipment status');
+      const item = await prisma.orderItem.update({
+        where: { id: args.itemId },
+        data: {
+          shipmentStatus: args.shipmentStatus,
+          ...(args.trackingNumber !== undefined ? { trackingNumber: args.trackingNumber } : {}),
+        },
+      });
+      return item;
+    },
   },
 };

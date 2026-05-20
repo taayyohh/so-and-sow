@@ -28,7 +28,7 @@ export default function AdminOrderDetailPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          query: `query($orderId: String!) { adminOrder(orderId: $orderId) { id total status shippingAmount taxAmount trackingNumber notes createdAt updatedAt stripeSessionId shippingAddress user { id email firstName lastName } items { id name quantity price size product { id name images price } } } }`,
+          query: `query($orderId: String!) { adminOrder(orderId: $orderId) { id total status shippingAmount taxAmount trackingNumber notes createdAt updatedAt stripeSessionId shippingAddress user { id email firstName lastName } items { id name quantity price size shipmentStatus trackingNumber product { id name images price } } } }`,
           variables: { orderId: id },
         }),
       });
@@ -118,15 +118,28 @@ export default function AdminOrderDetailPage() {
         <p className="text-xs tracking-widest uppercase text-white/50 mb-4">Items ({order.items.length})</p>
         <div className="border-t border-white/10">
           {order.items.map((item: any) => (
-            <div key={item.id} className="flex gap-4 py-4 border-b border-white/10 last:border-b-0">
-              <div className="w-16 h-16 bg-[#1b1b1b] flex-shrink-0 overflow-hidden">
-                {item.product?.images?.[0] && <img src={ipfsUrl(item.product.images[0])} alt={item.name} className="w-full h-full object-cover" />}
+            <div key={item.id} className="py-4 border-b border-white/10 last:border-b-0">
+              <div className="flex gap-4">
+                <div className="w-16 h-16 bg-[#1b1b1b] flex-shrink-0 overflow-hidden">
+                  {item.product?.images?.[0] && <img src={ipfsUrl(item.product.images[0])} alt={item.name} className="w-full h-full object-cover" />}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-white">{item.name}</p>
+                  <p className="text-xs text-white/50 mt-1">{formatPrice(item.price)} x {item.quantity}{item.size && <span className="ml-2">({item.size})</span>}</p>
+                </div>
+                <p className="text-sm font-medium text-white">{formatPrice(item.price * item.quantity)}</p>
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-white">{item.name}</p>
-                <p className="text-xs text-white/50 mt-1">{formatPrice(item.price)} x {item.quantity}{item.size && <span className="ml-2">({item.size})</span>}</p>
+              <div className="mt-3 ml-20 flex flex-wrap items-center gap-2">
+                <span className={`text-xs px-2 py-0.5 ${item.shipmentStatus === 'SHIPPED' ? 'bg-blue-900/30 text-blue-400' : item.shipmentStatus === 'DELIVERED' ? 'bg-green-900/30 text-green-400' : 'bg-white/5 text-white/40'}`}>
+                  {item.shipmentStatus || 'PENDING'}
+                </span>
+                {['PENDING', 'SHIPPED', 'DELIVERED'].filter((s: string) => s !== (item.shipmentStatus || 'PENDING')).map((s: string) => (
+                  <button key={s} onClick={() => gql(`mutation($itemId: String!, $shipmentStatus: String!) { updateItemShipment(itemId: $itemId, shipmentStatus: $shipmentStatus) { id shipmentStatus } }`, { itemId: item.id, shipmentStatus: s })} disabled={updating} className="text-xs border border-white/10 px-2 py-0.5 text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-30">
+                    Mark {s}
+                  </button>
+                ))}
+                {item.trackingNumber && <span className="text-xs text-white/30 font-mono">{item.trackingNumber}</span>}
               </div>
-              <p className="text-sm font-medium text-white">{formatPrice(item.price * item.quantity)}</p>
             </div>
           ))}
         </div>

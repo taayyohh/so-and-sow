@@ -83,6 +83,8 @@ type OrderItem {
   quantity: Int!
   price: Float!
   size: String
+  shipmentStatus: String!
+  trackingNumber: String
   product: Product
 }
 
@@ -198,6 +200,7 @@ type Mutation {
   updateOrderStatus(orderId: ID!, status: String!): AdminOrder!
   updateOrderTracking(orderId: String!, trackingNumber: String!): Order!
   updateOrderNotes(orderId: String!, notes: String!): Order!
+  updateItemShipment(itemId: String!, shipmentStatus: String!, trackingNumber: String): OrderItem!
   updateUser(input: UpdateUserInput!): User!
   setUserRole(email: String!, role: String!): User!
 }
