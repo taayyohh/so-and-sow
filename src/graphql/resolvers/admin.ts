@@ -179,6 +179,35 @@ export const adminResolvers = {
           ...(args.trackingNumber !== undefined ? { trackingNumber: args.trackingNumber } : {}),
         },
       });
+
+      // Auto-advance order status based on item statuses
+      const allItems = await prisma.orderItem.findMany({
+        where: { orderId: item.orderId },
+        select: { shipmentStatus: true },
+      });
+      const statuses = allItems.map((i: any) => i.shipmentStatus || 'PENDING');
+
+      let newOrderStatus: string | null = null;
+      if (statuses.every((s: string) => s === 'DELIVERED')) {
+        newOrderStatus = 'DELIVERED';
+      } else if (statuses.every((s: string) => s === 'CANCELED')) {
+        newOrderStatus = 'CANCELED';
+      } else if (statuses.every((s: string) => s === 'SHIPPED' || s === 'DELIVERED')) {
+        newOrderStatus = 'SHIPPED';
+      } else if (statuses.every((s: string) => s === 'PENDING')) {
+        newOrderStatus = 'PENDING';
+      } else {
+        // Mixed states (some shipped, some pending, etc.)
+        newOrderStatus = 'PROCESSING';
+      }
+
+      if (newOrderStatus) {
+        await prisma.order.update({
+          where: { id: item.orderId },
+          data: { status: newOrderStatus as any },
+        });
+      }
+
       return item;
     },
   },
