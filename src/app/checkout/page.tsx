@@ -58,7 +58,7 @@ export default function CheckoutPage() {
     if (ready && cart && cart.items.length === 0 && !paymentSucceeded.current) router.push('/cart');
   }, [ready, cart, router]);
 
-  const isAddressComplete = !!(formData.city && formData.state && formData.zipCode && formData.country);
+  const isAddressComplete = !!(formData.firstName && formData.lastName && formData.email && formData.street && formData.city && formData.state && formData.zipCode && formData.country);
 
   const calculateTax = useCallback(async () => {
     if (!cart || cart.items.length === 0) return;
