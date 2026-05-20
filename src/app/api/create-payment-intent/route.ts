@@ -96,9 +96,21 @@ export async function POST(req: NextRequest) {
       return `${item.productId}:${item.quantity}:${product.price}:${item.size || ''}`;
     });
 
+    const customerName = [shippingAddress?.firstName, shippingAddress?.lastName].filter(Boolean).join(' ');
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(total * 100),
       currency: 'usd',
+      shipping: {
+        name: customerName || 'Customer',
+        address: {
+          line1: shippingAddress?.street || '',
+          city: shippingAddress?.city || '',
+          state: shippingAddress?.state || '',
+          postal_code: shippingAddress?.zipCode || '',
+          country: shippingAddress?.country || 'US',
+        },
+      },
       metadata: {
         userId,
         orderItems: orderItems.join('|'),
