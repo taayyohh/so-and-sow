@@ -24,7 +24,7 @@ export default function OrdersPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          query: '{ userOrders { id total status createdAt receiptUrl items { id name quantity price size } } }',
+          query: '{ userOrders { id total status createdAt receiptUrl items { id name quantity price size shipmentStatus trackingNumber } } }',
         }),
       });
       const data = await res.json();
@@ -57,9 +57,23 @@ export default function OrdersPage() {
                 </span>
               </div>
               {order.items?.map((item: any) => (
-                <div key={item.id} className="flex justify-between text-sm text-white">
-                  <span>{item.name} {item.size ? `(${item.size})` : ''} x{item.quantity}</span>
-                  <span>{formatPrice(item.price * item.quantity)}</span>
+                <div key={item.id} className="py-2">
+                  <div className="flex justify-between text-sm text-white">
+                    <span>{item.name} {item.size ? `(${item.size})` : ''} x{item.quantity}</span>
+                    <span>{formatPrice(item.price * item.quantity)}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`text-xs px-2 py-0.5 ${
+                      item.shipmentStatus === 'SHIPPED' ? 'bg-blue-900/30 text-blue-400' :
+                      item.shipmentStatus === 'DELIVERED' ? 'bg-green-900/30 text-green-400' :
+                      'text-white/30'
+                    }`}>
+                      {item.shipmentStatus || 'PENDING'}
+                    </span>
+                    {item.trackingNumber && (
+                      <span className="text-xs text-white/40 font-mono">{item.trackingNumber}</span>
+                    )}
+                  </div>
                 </div>
               ))}
               <div className="border-t border-white/10 pt-2 flex justify-between text-sm font-medium text-white">

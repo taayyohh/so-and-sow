@@ -68,22 +68,9 @@ export default function AdminOrderDetailPage() {
 
       {message && <div className={`p-3 mb-6 text-sm ${message.type === 'success' ? 'bg-green-900/30 border border-green-500/30 text-green-400' : 'bg-red-900/30 border border-red-500/30 text-red-400'}`}>{message.text}</div>}
 
-      {/* Status */}
-      <div className="border border-white/10 p-4 mb-6">
-        <p className="text-xs tracking-widest uppercase text-white/50 mb-3">Update Status</p>
-        <div className="flex flex-wrap gap-2">
-          {statuses.map((s) => <button key={s} onClick={() => gql(`mutation($orderId: ID!, $status: String!) { updateOrderStatus(orderId: $orderId, status: $status) { id } }`, { orderId: order.id, status: s })} disabled={updating || order.status === s} className={`py-1.5 px-4 text-xs tracking-wide transition-colors disabled:opacity-40 ${order.status === s ? 'bg-white text-black' : 'border border-white/10 text-white/50 hover:bg-white/5'}`}>{s}</button>)}
-        </div>
-      </div>
 
-      {/* Tracking */}
-      <div className="border border-white/10 p-4 mb-6">
-        <p className="text-xs tracking-widest uppercase text-white/50 mb-3">Tracking Number</p>
-        <div className="flex gap-2">
-          <input type="text" value={trackingInput} onChange={(e) => setTrackingInput(e.target.value)} placeholder="Enter tracking number..." className="flex-1 p-2 bg-[#1b1b1b] border border-white/20 text-white text-sm focus:outline-none focus:border-white" />
-          <button onClick={() => gql(`mutation($orderId: String!, $trackingNumber: String!) { updateOrderTracking(orderId: $orderId, trackingNumber: $trackingNumber) { id } }`, { orderId: order.id, trackingNumber: trackingInput })} disabled={updating} className="px-4 py-2 bg-white text-black text-xs uppercase hover:bg-white/90 disabled:opacity-50">Save</button>
-        </div>
-      </div>
+
+
 
       {/* Notes */}
       <div className="border border-white/10 p-4 mb-6">
