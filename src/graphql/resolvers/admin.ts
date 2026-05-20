@@ -146,5 +146,25 @@ export const adminResolvers = {
         date: updatedOrder.createdAt.toISOString(),
       };
     },
+
+    updateOrderTracking: async (_parent: any, args: { orderId: string; trackingNumber: string }, context: GraphQLContext) => {
+      await requireAdmin(context);
+      const { prisma } = context;
+      const order = await prisma.order.update({
+        where: { id: args.orderId },
+        data: { trackingNumber: args.trackingNumber },
+      });
+      return { id: order.id, trackingNumber: order.trackingNumber };
+    },
+
+    updateOrderNotes: async (_parent: any, args: { orderId: string; notes: string }, context: GraphQLContext) => {
+      await requireAdmin(context);
+      const { prisma } = context;
+      const order = await prisma.order.update({
+        where: { id: args.orderId },
+        data: { notes: args.notes },
+      });
+      return { id: order.id, notes: order.notes };
+    },
   },
 };

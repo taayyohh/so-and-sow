@@ -104,6 +104,7 @@ type Order {
   shippingAddress: JSON
   stripeSessionId: String
   trackingNumber: String
+  notes: String
   receiptUrl: String
   user: User
   items: [OrderItem!]!
@@ -195,6 +196,8 @@ type Mutation {
   updateProduct(id: ID!, input: UpdateProductInput!): Product!
   toggleProductStatus(id: ID!): Product!
   updateOrderStatus(orderId: ID!, status: String!): AdminOrder!
+  updateOrderTracking(orderId: String!, trackingNumber: String!): Order!
+  updateOrderNotes(orderId: String!, notes: String!): Order!
   updateUser(input: UpdateUserInput!): User!
   setUserRole(email: String!, role: String!): User!
 }
