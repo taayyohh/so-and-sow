@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sendOrderConfirmation } from '@/lib/email';
 import Stripe from 'stripe';
 
 function getStripe(): Stripe {
@@ -132,6 +133,24 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event) {
       },
     });
   });
+
+  // Send order confirmation email
+  const customerEmail = shippingAddress?.email || (await prisma.user.findUnique({ where: { id: meta.userId }, select: { email: true } }))?.email;
+  const customerName = [shippingAddress?.firstName, shippingAddress?.lastName].filter(Boolean).join(' ');
+  if (customerEmail) {
+    // Fetch product names outside transaction for email
+    const productNames = await prisma.product.findMany({
+      where: { id: { in: items.map(i => i.productId) } },
+      select: { id: true, name: true },
+    });
+    const emailItems = items.map(item => ({
+      name: productNames.find(p => p.id === item.productId)?.name || 'Product',
+      quantity: item.quantity,
+      price: item.price,
+      size: item.size,
+    }));
+    await sendOrderConfirmation(customerEmail, customerName, emailItems, total, shippingAmount);
+  }
 }
 
 // === Checkout Session Completed ===
