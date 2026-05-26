@@ -76,6 +76,7 @@ export default function CheckoutPage() {
             productId: item.productId, quantity: item.quantity, price: item.price,
           })),
           shippingAddress: {
+            firstName: formData.firstName, lastName: formData.lastName, email: formData.email,
             street: formData.street, city: formData.city, state: formData.state, zipCode: formData.zipCode, country: formData.country,
           },
         }),
@@ -131,7 +132,7 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({
           cartItems: cart.items.map(item => ({ productId: item.productId, quantity: item.quantity, price: item.price, size: item.size })),
-          shippingAddress: { street: formData.street, city: formData.city, state: formData.state, zipCode: formData.zipCode, country: formData.country },
+          shippingAddress: { firstName: formData.firstName, lastName: formData.lastName, email: formData.email, street: formData.street, city: formData.city, state: formData.state, zipCode: formData.zipCode, country: formData.country },
           taxCalculationId: taxInfo.taxCalculationId,
         }),
       });
